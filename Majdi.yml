@@ -1,0 +1,67 @@
+# web server configuration. 
+server:
+ # TLS certificate files (required)
+ certFile: server.pem
+ keyFile: key.pem
+ # gateway address advertised in the rdp files
+ gatewayAddress: localhost
+ # port to listen on
+ port: 443
+ # list of acceptable desktop hosts to connect to
+ hosts:
+  - localhost:3389
+  - my-{{ preferred_username }}-host:3389
+  # Allow the user to connect to any host (insecure)
+  - any 
+ # if true the server randomly selects a host to connect to
+ roundRobin: false 
+ # a random strings of at least 32 characters to secure cookies on the client
+ # make sure to share this across the different pods
+ sessionKey: thisisasessionkeyreplacethisjetzt
+ sessionEncryptionKey: thisisasessionkeyreplacethisnunu!
+ # tries to set the receive / send buffer of the connections to the client
+ # in case of high latency high bandwidth the defaults set by the OS might
+ # be to low for a good experience
+ # receiveBuf: 12582912
+ # sendBuf: 12582912 
+# Open ID Connect specific settings
+openId:
+ providerUrl: http://keycloak/auth/realms/test
+ clientId: rdpgw
+ clientSecret: your-secret
+# enabled / disabled capabilities
+caps:
+ smartCardAuth: false
+ tokenAuth: true
+ # connection timeout in minutes, 0 is limitless
+ idleTimeout: 10
+ enablePrinter: true
+ enablePort: true
+ enablePnp: true
+ enableDrive: true
+ enableClipboard: true
+client:
+  # this is a go string templated with {{ username }} and {{ token }}
+  # the example below uses the ASCII field separator to distinguish
+  # between user and token 
+  usernameTemplate: "{{ username }}@bla.com\x1f{{ token }}"
+  # rdp file settings see: 
+  # https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/rdp-files
+  networkAutoDetect: 0
+  bandwidthAutoDetect: 1
+  ConnectionType: 6
+  # If true puts splits "user@domain.com" into the user and domain component so that
+  # domain gets set in the rdp file and the domain name is stripped from the username
+  SplitUserDomain: false
+security:
+  # a random string of at least 32 characters to secure cookies on the client
+  # make sure to share this amongst different pods
+  PAATokenSigningKey: thisisasessionkeyreplacethisjetzt
+  # PAATokenEncryptionKey: thisisasessionkeyreplacethisjetzt
+  UserTokenEncryptionKey: thisisasessionkeyreplacethisjetzt
+  # if you want to enable token generation for the user
+  # if true the username will be set to a jwt with the username embedded into it
+  EnableUserToken: true
+  # Verifies if the ip used to connect to download the rdp file equals from where the
+  # connection is opened.
+  VerifyClientIp: true
